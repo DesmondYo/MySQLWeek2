@@ -1,0 +1,196 @@
+Dtown@Dezs-MacBook-Air ~ % echo 'export PATH=/usr/local/mysql/bin:$PATH' >> ~/.bash_profile
+Dtown@Dezs-MacBook-Air ~ % . ~/.bash_profile
+Dtown@Dezs-MacBook-Air ~ % env
+TMPDIR=/var/folders/86/2t8s25710vlgkx0z37cgzcn00000gn/T/
+XPC_FLAGS=0x0
+LaunchInstanceID=05FF4019-4427-4E87-AC68-C0F599722958
+TERM=xterm-256color
+LANG=en_US.UTF-8
+SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.xXp6HotGxz/Listeners
+SECURITYSESSIONID=186aa
+XPC_SERVICE_NAME=0
+TERM_PROGRAM=Apple_Terminal
+TERM_PROGRAM_VERSION=433
+TERM_SESSION_ID=6AFAFFDF-571B-472F-B7FC-B21378BC9A8B
+SHELL=/bin/zsh
+HOME=/Users/Dtown
+LOGNAME=Dtown
+USER=Dtown
+PATH=/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/mysql/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
+SHLVL=1
+PWD=/Users/Dtown
+OLDPWD=/Users/Dtown
+_=/usr/bin/env
+Dtown@Dezs-MacBook-Air ~ % mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 8.0.20 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use employees;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++----------------------+
+| Tables_in_employees  |
++----------------------+
+| current_dept_emp     |
+| departments          |
+| dept_emp             |
+| dept_emp_latest_date |
+| dept_manager         |
+| employees            |
+| salaries             |
+| titles               |
++----------------------+
+8 rows in set (0.01 sec)
+
+mysql> desc employees;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| emp_no     | int           | NO   | PRI | NULL    |       |
+| birth_date | date          | NO   |     | NULL    |       |
+| first_name | varchar(14)   | NO   |     | NULL    |       |
+| last_name  | varchar(16)   | NO   |     | NULL    |       |
+| gender     | enum('M','F') | NO   |     | NULL    |       |
+| hire_date  | date          | NO   |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+
+mysql> desc titles;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| emp_no    | int         | NO   | PRI | NULL    |       |
+| title     | varchar(50) | NO   | PRI | NULL    |       |
+| from_date | date        | NO   | PRI | NULL    |       |
+| to_date   | date        | YES  |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc salaries;
++-----------+------+------+-----+---------+-------+
+| Field     | Type | Null | Key | Default | Extra |
++-----------+------+------+-----+---------+-------+
+| emp_no    | int  | NO   | PRI | NULL    |       |
+| salary    | int  | NO   |     | NULL    |       |
+| from_date | date | NO   | PRI | NULL    |       |
+| to_date   | date | NO   |     | NULL    |       |
++-----------+------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc department;
+ERROR 1146 (42S02): Table 'employees.department' doesn't exist
+mysql> desc departments;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| dept_no   | char(4)     | NO   | PRI | NULL    |       |
+| dept_name | varchar(40) | NO   | UNI | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT COUNT(*) AS "Number of Employees", titles.title FROM employees
+    -> INNER JOIN titles ON titles.emp_no = employees.emp_no
+    -> WHERE birth_date > '1965-01-01'
+    -> GROUP BY titles.title;
++---------------------+--------------------+
+| Number of Employees | title              |
++---------------------+--------------------+
+|                 612 | Senior Staff       |
+|                 703 | Staff              |
+|                  95 | Technique Leader   |
+|                 589 | Senior Engineer    |
+|                 657 | Engineer           |
+|                  97 | Assistant Engineer |
++---------------------+--------------------+
+6 rows in set (2.98 sec)
+
+mysql> SELECT COUNT(*) AS "Number of Employees", titles.title FROM employees
+    -> INNER JOIN titles ON titles.emp_no = employees.emp_no
+    -> WHERE birth_date > "1965-01-01"
+    -> GROUP BY titles.title;
++---------------------+--------------------+
+| Number of Employees | title              |
++---------------------+--------------------+
+|                 612 | Senior Staff       |
+|                 703 | Staff              |
+|                  95 | Technique Leader   |
+|                 589 | Senior Engineer    |
+|                 657 | Engineer           |
+|                  97 | Assistant Engineer |
++---------------------+--------------------+
+6 rows in set (0.19 sec)
+
+mysql> SELECT avg(salary) AS "Average Salary", titles.title FROM salaries
+    -> INNER JOIN titles ON titles.emp_no = salaries.emp_no
+    -> GROUP BY titles.title;
++----------------+--------------------+
+| Average Salary | title              |
++----------------+--------------------+
+|     59304.9863 | Assistant Engineer |
+|     59508.1707 | Engineer           |
+|     60543.2675 | Senior Engineer    |
+|     69308.4651 | Staff              |
+|     70470.2941 | Senior Staff       |
+|     59294.3742 | Technique Leader   |
+|     66924.2706 | Manager            |
++----------------+--------------------+
+7 rows in set (11.49 sec)
+
+mysql> SELECT d.dept_name AS "Department Name", sum(salary) AS "Salary" FROM dept_emp de
+    -> INNER JOIN departments d ON d.dept_no = d.dept_no
+    -> INNER JOIN salaries s ON s.emp_no = de. emp_no
+    -> WHERE s.from_date > "1990-01-01" AND s.to_date > "1992-01-01 AND dept_name = "Marketing";
+    "> WHERE s.from_date > "1990-01-01" AND s.to_date > "1992-01-01" AND dept_name = "Marketing";
+    "> ^C
+
+^C
+mysql> SELECT d.dept_name AS "Department Name", sum(salary) AS "Salary" FROM dept_emp de
+    -> INNER JOIN departments d ON d.dept_no = d.dept_no
+    -> INNER JOIN salaries s ON s.emp_no = de. emp_no
+    -> WHERE s.from_date > "1990-01-01" AND s.to_date > "1992-01-01" AND dept_name = "Marketing";
++-----------------+--------------+
+| Department Name | Salary       |
++-----------------+--------------+
+| Marketing       | 175491777966 |
++-----------------+--------------+
+1 row in set (8.08 sec)
+
+mysql> SELECT d.dept_name AS "Department Name", sum(salary) AS "Salary" FROM dept_emp de INNER JOIN departments d ON d.dept_no = d.dept_no INNER JOIN salaries s ON s.emp_no = de. emp_no WHERE s.from_date > "1990-01-01" AND s.to_date < "1992-01-01" AND dept_name = "Marketing";
+
++-----------------+------------+
+| Department Name | Salary     |
++-----------------+------------+
+| Marketing       | 7361968825 |
++-----------------+------------+
+1 row in set (1.80 sec)
+
+mysql> SELECT d.dept_name AS "Department Name", sum(salary) AS "Salary" FROM dept_emp de INNER JOIN departments d ON d.dept_no = d.dept_no INNER JOIN salaries s ON s.emp_no = de. emp_no WHERE s.from_date >= "1990-01-01" AND s.to_date <= "1992-01-01" AND dept_name = "Marketing";
++-----------------+------------+
+| Department Name | Salary     |
++-----------------+------------+
+| Marketing       | 7395048383 |
++-----------------+------------+
+1 row in set (1.89 sec)
+
+mysql> SELECT d.dept_name AS "Department Name", sum(salary) AS "Salary" FROM dept_emp de INNER JOIN departments d ON d.dept_no = d.dept_no INNER JOIN salaries s ON s.emp_no = de. emp_no WHERE s.from_date > "1990-01-01" AND s.to_date < "1992-01-01" AND dept_name = "Marketing";
++-----------------+------------+
+| Department Name | Salary     |
++-----------------+------------+
+| Marketing       | 7361968825 |
++-----------------+------------+
+1 row in set (1.75 sec)
+
+mysql> 
